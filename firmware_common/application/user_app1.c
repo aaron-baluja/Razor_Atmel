@@ -91,6 +91,20 @@ void UserApp1Initialize(void)
   /* If good initialization, set state to Idle */
   if( 1 )
   {
+//    /* Turn on an LED using the ON function */
+//    LedOn(BLUE0);
+//
+//    /* Turn on an LED using the TOGGLE function */
+//    LedToggle(RED0);
+//
+//    /* Set an LED to blink at 2Hz */
+//    LedBlink(RED1, LED_2HZ);
+//
+//    /* Set an LED to the dimmest state we have (5% duty cycle) */
+//    LedPWM(GREEN2, LED_PWM_5);
+//        
+//    
+    
     UserApp1_StateMachine = UserApp1SM_Idle;
   }
   else
@@ -118,6 +132,40 @@ Promises:
 */
 void UserApp1RunActiveState(void)
 {
+  
+    static u16 u16BlinkCount = 0;
+    static u8 counter = 0;
+    static u8 colourToSet = 0;
+    
+    u16BlinkCount++;
+    
+    if(u16BlinkCount == COUNTER_PERIOD)
+    {
+      u16BlinkCount = 0;
+      
+      
+      for(u8 i = 0; i < NUM_LEDS; i++){
+        if(counter & 1 << i)
+          LedOn(colourToSet*NUM_LEDS + i);
+        else
+          LedOff(colourToSet*NUM_LEDS + i);
+      
+      }
+      
+     
+      counter = (counter + 1)%COUNTER_MAX;
+      
+      if(counter == 0){
+        LedOff(colourToSet*NUM_LEDS + 0);
+        LedOff(colourToSet*NUM_LEDS + 1);
+        LedOff(colourToSet*NUM_LEDS + 2);
+        LedOff(colourToSet*NUM_LEDS + 3);
+        colourToSet = (colourToSet +1) %NUM_COLOURS;      
+      }
+
+
+        
+    }
   UserApp1_StateMachine();
 
 } /* end UserApp1RunActiveState */
