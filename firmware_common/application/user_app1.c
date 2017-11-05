@@ -44,6 +44,16 @@ All Global variable names shall start with "G_UserApp1"
 volatile u32 G_u32UserApp1Flags;                       /* Global state flags */
 
 
+static LedNumberType aeCurrentLed[]  = {GREEN0, RED0, BLUE0, GREEN0, RED0, BLUE0};
+static LedNumberType aeCurrentLed1[] = {GREEN1, RED1, BLUE1, GREEN1, RED1, BLUE1};
+static LedNumberType aeCurrentLed2[] = {GREEN2, RED2, BLUE2, GREEN2, RED2, BLUE2};
+static LedNumberType aeCurrentLed3[] = {GREEN3, RED3, BLUE3, GREEN3, RED3, BLUE3};
+
+static bool abLedRateIncreasing[]   = {TRUE,  FALSE,   TRUE, FALSE, TRUE,  FALSE};
+
+static u8 dutyChangeCounter = 0;
+
+
 /*--------------------------------------------------------------------------------------------------------------------*/
 /* Existing variables (defined in other files -- should all contain the "extern" keyword) */
 extern volatile u32 G_u32SystemFlags;                  /* From main.c */
@@ -88,9 +98,27 @@ Promises:
 void UserApp1Initialize(void)
 {
  
+//Set all red LED PWMs to 100%, green and blue to 0%
+  LedPWM(RED0,   LED_PWM_100);
+  LedPWM(GREEN0, LED_PWM_0);
+  LedPWM(BLUE0,  LED_PWM_0);
+
+  LedPWM(RED1,   LED_PWM_100);
+  LedPWM(GREEN1, LED_PWM_0);
+  LedPWM(BLUE1,  LED_PWM_0);
+
+  LedPWM(RED2,   LED_PWM_100);
+  LedPWM(GREEN2, LED_PWM_0);
+  LedPWM(BLUE2,  LED_PWM_0);
+
+  LedPWM(RED3,   LED_PWM_100);
+  LedPWM(GREEN3, LED_PWM_0);
+  LedPWM(BLUE3,  LED_PWM_0);
+  
+  
   /* If good initialization, set state to Idle */
   if( 1 )
-  {
+  {    
     UserApp1_StateMachine = UserApp1SM_Idle;
   }
   else
@@ -133,10 +161,39 @@ State Machine Function Definitions
 **********************************************************************************************************************/
 
 /*-------------------------------------------------------------------------------------------------------------------*/
-/* Wait for ??? */
+/* Always called to process next duty cycle change */
 static void UserApp1SM_Idle(void)
 {
+  static u8 currLedToChange = 0;
+  static u8 currDutyIndex = 0;
+  
+  
+  dutyChangeCounter++;
+  
+//  delay to allow visibility of LED colour change and LED driver
+  if(dutyChangeCounter == LED_TIME_BETWEEN_DUTY_CHANGE){
+    dutyChangeCounter = 0;
+    
+//  Set all of the current LEDS to the appropriate duty value   
+    LedPWM( aeCurrentLed[currLedToChange], (LedRateType)currDutyIndex);
+    LedPWM( aeCurrentLed1[currLedToChange], (LedRateType)currDutyIndex);
+    LedPWM( aeCurrentLed2[currLedToChange], (LedRateType)currDutyIndex);
+    LedPWM( aeCurrentLed3[currLedToChange], (LedRateType)currDutyIndex);
 
+//   if current LED should have increasing duty cycle, increase index. Opposite for decreasing
+    if(abLedRateIncreasing[currLedToChange])
+      currDutyIndex++;
+    else
+      currDutyIndex--;
+    
+//  At either min or max duty, change current LED to next. Modulus to loop around to start of LED list
+    if(currDutyIndex == 0 || currDutyIndex == LED_PWM_PERIOD)
+      currLedToChange = (currLedToChange + 1)%NUM_LEDS_TO_CHANGE;
+    
+    
+    
+    
+  }  
 } /* end UserApp1SM_Idle() */
     
 
