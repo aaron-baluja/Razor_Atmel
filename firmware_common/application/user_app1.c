@@ -83,7 +83,7 @@ Requires:
   -
 
 Promises:
-  - 
+  - Turns off all LEDs 
 */
 void UserApp1Initialize(void)
 {
@@ -149,7 +149,8 @@ State Machine Function Definitions
 **********************************************************************************************************************/
 
 /*-------------------------------------------------------------------------------------------------------------------*/
-/* Button application */
+/* Button application: BUTTON1 toggles GREEN1 between 1 Hz blink and off. BUTTON1 also held for longer than 2 seconds turns on RED3 and BLUE3  */
+/* BUTTON0 cycles through blink rates for RED2*/
 static void UserApp1SM_Idle(void)
 {
   static bool ledGreen1on = TRUE;
@@ -164,6 +165,7 @@ static void UserApp1SM_Idle(void)
 //    LedOff(BLUE0);
 //  }
   
+  //Pressing BUTTON1 toggle blinking of GREEN1
   if(WasButtonPressed(BUTTON1)){
     ButtonAcknowledge(BUTTON1);
     
@@ -177,6 +179,7 @@ static void UserApp1SM_Idle(void)
     }   
   }
   
+  //BUTTON 1 held turns on RED3 and BLUE3(i.e purple on LED3)
   if(IsButtonHeld(BUTTON1, 2000)){
     LedOn(RED3);
     LedOn(BLUE3);
@@ -187,8 +190,8 @@ static void UserApp1SM_Idle(void)
   }  
 
   if(IsButtonPressed(BUTTON0) ){
-    LedBlink(RED2,  aeBlinkRate[blinkRateIndex] );
-    blinkRateIndex = (blinkRateIndex + 1) % 4 ;
+    LedBlink(RED2,  aeBlinkRate[blinkRateIndex] ); //switch blink rate
+    blinkRateIndex = (blinkRateIndex + 1) % ( sizeof(aeBlinkRate) /sizeof(LedRateType)); //increment index for next button press
   }
  
   
