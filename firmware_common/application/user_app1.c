@@ -87,7 +87,23 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
- 
+  LedOff(RED0);
+  LedOff(BLUE0);
+  LedOff(GREEN0);
+
+  LedOff(RED1);
+  LedOff(BLUE1);
+  LedOff(GREEN1);
+
+  LedOff(RED2);
+  LedOff(BLUE2);
+  LedOff(GREEN2);
+
+  LedOff(RED3);
+  LedOff(BLUE3);
+  LedOff(GREEN3);
+  
+  
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -133,9 +149,40 @@ State Machine Function Definitions
 **********************************************************************************************************************/
 
 /*-------------------------------------------------------------------------------------------------------------------*/
-/* Wait for ??? */
+/* Button application */
 static void UserApp1SM_Idle(void)
 {
+  static bool ledGreen1on = TRUE;
+  
+  
+  if(IsButtonPressed(BUTTON0) ){
+    LedOn(BLUE0);
+  }
+  else{
+    LedOff(BLUE0);
+  }
+  
+  if(WasButtonPressed(BUTTON1)){
+    ButtonAcknowledge(BUTTON1);
+    
+    if(ledGreen1on){
+      LedBlink(GREEN1, LED_1HZ);
+      ledGreen1on = FALSE;
+    }
+    else{
+      LedOff(GREEN1);
+      ledGreen1on = TRUE;
+    }   
+  }
+  
+  if(IsButtonHeld(BUTTON1, 2000)){
+    LedOn(RED3);
+    LedOn(BLUE3);
+  }
+  else{
+    LedOff(RED3);
+    LedOff(BLUE3);
+  }  
 
 } /* end UserApp1SM_Idle() */
     
