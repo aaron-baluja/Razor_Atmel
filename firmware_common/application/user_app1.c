@@ -83,11 +83,14 @@ Requires:
   -
 
 Promises:
-  - 
+  - Sets up buzzer1 to 500Hz
 */
 void UserApp1Initialize(void)
 {
- 
+  PWMAudioSetFrequency(BUZZER1, 500);
+  
+    
+  
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -133,10 +136,20 @@ State Machine Function Definitions
 **********************************************************************************************************************/
 
 /*-------------------------------------------------------------------------------------------------------------------*/
-/* Wait for ??? */
+/* Buzzer control application */
 static void UserApp1SM_Idle(void)
 {
-
+  
+  if(IsButtonPressed(BUTTON0))
+  {
+    PWMAudioOn(BUZZER1);
+  } 
+  
+  if(WasButtonPressed(BUTTON1))
+  {
+    ButtonAcknowledge(BUTTON1);
+    PWMAudioSetFrequency(BUZZER1, 294);
+  }
 } /* end UserApp1SM_Idle() */
     
 
