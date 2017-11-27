@@ -89,15 +89,18 @@ Requires:
   -
 
 Promises:
-  - 
+  Initializes numNotes based on size of array. Checks that all three arrays have the same number of elements
 */
 void UserApp1Initialize(void)
 {
-  numNotes = sizeof(notesTone)/sizeof(u16);
-  
-  /* If good initialization, set state to Idle */
-  if( 1 )
+  u32 sizeToneArray = sizeof(notesTone)/sizeof(u16);
+  u32 sizeDurationArray = sizeof(durationTone)/sizeof(u16);
+  u32 sizeTypeArray = sizeof(noteType)/sizeof(u16);
+    
+  /* If good initialization, set state to Idle. In this case, if the size of the arrays match */
+  if(sizeToneArray == sizeDurationArray && sizeDurationArray == sizeTypeArray )
   {
+    numNotes = sizeToneArray;
     UserApp1_StateMachine = UserApp1SM_Idle;
   }
   else
@@ -140,25 +143,27 @@ State Machine Function Definitions
 **********************************************************************************************************************/
 
 /*-------------------------------------------------------------------------------------------------------------------*/
-/* Wait for ??? */
+/* Plays melody defined in globals above. Loops to start after finishing */
 static void UserApp1SM_Idle(void)
 {
-  static u32 timer = 0;
-  static u32 currNoteIndex = 0;
-  static timerState musicState  = POST_NOTE;
+  static u32 timer = 0; //general timer used for both states
+  static u32 currNoteIndex = 0; 
+  static timerState musicState  = POST_NOTE; //two possible states, either playing a note, or waiting after note
   
   
   u16 currNoteTone;
   u16 currDuration;
   u16 currNoteType;
   
+  //perform action if timer is 0
   if(timer == 0){
+    //get current states
       currNoteTone = notesTone[currNoteIndex];
       currDuration = durationTone[currNoteIndex];
       currNoteType = noteType[currNoteIndex];
       
       if(musicState == POST_NOTE){
-         if(currNoteTone != NONE){
+         if(currNoteTone != NONE){ //only enable the buzzer if note is not NONE
              PWMAudioSetFrequency(BUZZER1, currNoteTone);
              PWMAudioOn(BUZZER1);
          }
@@ -176,10 +181,9 @@ static void UserApp1SM_Idle(void)
       else{ 
         //Error case, shouldn't go here
       }  
-      
-  
   }
   else{
+    //otherwise, decrement timer
     timer--;
   }  
     
