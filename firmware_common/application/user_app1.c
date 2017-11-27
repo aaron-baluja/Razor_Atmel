@@ -61,6 +61,12 @@ static fnCode_type UserApp1_StateMachine;            /* The state machine functi
 //static u32 UserApp1_u32Timeout;                      /* Timeout counter used across states */
 
 
+static u16 notesTone[] =    {F5, F5, F5, F5, F5, E5, D5, E5, F5, G5, A5, A5, A5, A5, A5, G5, F5, G5, A5, A5S, C6, F5, F5, D6, C6, A5S, A5, G5, F5, NO, NO};
+static u16 durationTone[] = {QN, QN, HN, EN, EN, EN, EN, EN, EN, QN, QN, QN, HN, EN, EN, EN, EN, EN, EN, QN,  HN, HN, EN, EN, EN, EN,  QN, QN, HN, HN, FN};
+static u16 noteType[] =     {RT, RT, HT, RT, RT, RT, RT, RT, RT, RT, RT, RT, HT, RT, RT, RT, RT, RT, RT, RT,  RT, HT, RT, RT, RT, RT,  RT, RT, RT, HT, HT};
+
+static u32 numNotes = 0;
+
 /**********************************************************************************************************************
 Function Definitions
 **********************************************************************************************************************/
@@ -87,7 +93,8 @@ Promises:
 */
 void UserApp1Initialize(void)
 {
- 
+  numNotes = sizeof(notesTone)/sizeof(u16);
+  
   /* If good initialization, set state to Idle */
   if( 1 )
   {
@@ -136,7 +143,48 @@ State Machine Function Definitions
 /* Wait for ??? */
 static void UserApp1SM_Idle(void)
 {
-
+  static u32 timer = 0;
+  static u32 currNoteIndex = 0;
+  static timerState musicState  = POST_NOTE;
+  
+  
+  u16 currNoteTone;
+  u16 currDuration;
+  u16 currNoteType;
+  
+  if(timer == 0){
+      currNoteTone = notesTone[currNoteIndex];
+      currDuration = durationTone[currNoteIndex];
+      currNoteType = noteType[currNoteIndex];
+      
+      if(musicState == POST_NOTE){
+         if(currNoteTone != NONE){
+             PWMAudioSetFrequency(BUZZER1, currNoteTone);
+             PWMAudioOn(BUZZER1);
+         }
+         else{
+           PWMAudioOff(BUZZER1);
+         } 
+         timer = currDuration;
+         musicState = NOTE_PLAYING;
+      }  
+      else if(musicState == NOTE_PLAYING){
+          timer = currNoteType; //type is also defined as duration
+          musicState = POST_NOTE;
+          currNoteIndex = (currNoteIndex + 1) %numNotes ;
+      }
+      else{ 
+        //Error case, shouldn't go here
+      }  
+      
+  
+  }
+  else{
+    timer--;
+  }  
+    
+  
+  
 } /* end UserApp1SM_Idle() */
     
 
